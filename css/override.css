@@ -1,45 +1,217 @@
-hr {
-  margin-top: 30px;
-  margin-bottom: 20px;
+/* Hacker-style override CSS for divinehawk.github.io
+   - Dark terminal background
+   - Monospace fonts, neon green accents
+   - Glowing links and buttons
+   - Styled posts, code blocks, and a subtle "matrix" animated background
+   - Keep selectors scoped so it overrides minima cleanly
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap');
+
+:root{
+  --bg-1: #060606; /* deep black */
+  --bg-2: #07100a; /* subtle dark green tint */
+  --neon: #33ff77;
+  --neon-dim: rgba(51,255,119,0.14);
+  --muted: #7f9a86;
+  --glass: rgba(255,255,255,0.03);
 }
 
-/* Post navigation links */
-.post_navi {
-  display: flex;
+html,body{
+  height:100%;
+  background-color:var(--bg-1) !important;
+  color:var(--neon) !important;
+  font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace !important;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
 }
 
-.post_navi-label {
-  font-size: 0.8em;
-  opacity: 0.5;
+/* Subtle layered animated background to suggest "matrix" rain */
+body::before,
+body::after{
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
-.post_navi .post_navi-item {
-  padding: 0 2.2em;
-  width: 50%;
+/* faint vertical scanning lines */
+body::before{
+  background-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,0.015) 50%, rgba(0,0,0,0) 100%);
+  background-size: 6px 100%;
+  mix-blend-mode: screen;
+  opacity: 0.8;
+  animation: scan 8s linear infinite;
+}
+
+@keyframes scan{
+  from { transform: translateX(-10%); }
+  to   { transform: translateX(10%); }
+}
+
+/* moving binary-like gradient layer */
+body::after{
+  background-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,255,115,0.02) 10%, rgba(0,0,0,0) 20%);
+  background-size: 100% 120px;
+  opacity: 0.35;
+  filter: blur(0.6px);
+  animation: drift 10s linear infinite;
+}
+
+@keyframes drift{
+  from { background-position-y: 0; }
+  to   { background-position-y: 120px; }
+}
+
+/* Page container adjustments so content sits above background */
+.site, .page, main, .wrapper{
   position: relative;
-  color: inherit !important;
+  z-index: 1;
 }
 
-.post_navi .nav_prev {
-  text-align: left;
+/* header and site title */
+.site-header, .site-title, .site-description{
+  color: var(--neon) !important;
+  text-shadow: 0 0 8px rgba(51,255,119,0.08), 0 0 20px rgba(51,255,119,0.02);
 }
 
-.post_navi .nav_next {
-  text-align: right;
+.site-title a{
+  color: var(--neon) !important;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  font-weight: 700;
 }
 
-.post_navi .nav_prev .post_navi-arrow {
-  left: 0;
+.site-description{
+  color: var(--muted) !important;
+  font-size: 0.95rem;
 }
 
-.post_navi .nav_next .post_navi-arrow {
-  right: 0;
+/* Links with neon glow */
+a, a code{
+  color: var(--neon) !important;
+  text-decoration: none;
+  position: relative;
 }
 
-.post_navi .post_navi-arrow {
+a::after{
+  content: "";
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 2.5em;
-  opacity: 0.3;
+  left:0; right:0; bottom: -2px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--neon-dim), transparent);
+  opacity: 0.6;
+  transition: transform .18s ease, opacity .18s ease;
+  transform-origin: left center;
+  transform: scaleX(0);
 }
+
+a:hover::after{ transform: scaleX(1); opacity:1; }
+
+a:hover{ filter: drop-shadow(0 0 6px rgba(51,255,119,0.18)); }
+
+/* Main content card look */
+.container, .content, .post, article{
+  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
+  border: 1px solid rgba(51,255,119,0.06);
+  box-shadow: 0 6px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.01);
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+}
+
+/* Posts */
+.post-title, .post-title a{
+  color: var(--neon) !important;
+  font-size: 1.5rem;
+  letter-spacing: 0.03em;
+}
+
+.post-meta, .post_date, .post .byline, .meta{
+  color: var(--muted) !important;
+  font-size: 0.9rem;
+}
+
+/* HR */
+hr{
+  border: none;
+  height:1px;
+  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.06), transparent);
+  margin: 28px 0;
+}
+
+/* Post navigation (keep your layout but tune for theme) */
+.post_navi{ display:flex; gap:1rem; justify-content:space-between; align-items:center; }
+.post_navi .post_navi-item{ padding:0.6rem 1rem; border-radius:6px; background: rgba(0,0,0,0.03); border: 1px solid rgba(51,255,119,0.04); }
+.post_navi .post_navi-arrow{ color:var(--neon); font-size:1.6rem; opacity:0.6; }
+.post_navi-label{ color:var(--muted); font-size:0.85rem; }
+
+/* Buttons and callouts */
+.button, button, .btn{
+  background: linear-gradient(90deg, rgba(51,255,119,0.08), rgba(51,255,119,0.04));
+  color: var(--neon) !important;
+  border: 1px solid rgba(51,255,119,0.12);
+  padding: .5rem .8rem; border-radius:6px;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.button:hover, button:hover, .btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(51,255,119,0.06); }
+
+/* Code blocks and inline code */
+pre, code, kbd{
+  background: rgba(0,0,0,0.14) !important;
+  color: var(--neon) !important;
+  border: 1px solid rgba(51,255,119,0.06);
+  padding: .4rem .6rem; border-radius: 6px;
+  font-family: 'Source Code Pro', ui-monospace, monospace !important;
+}
+
+pre{
+  overflow:auto; padding:1rem; line-height:1.5; font-size:0.95rem;
+}
+
+/* Blockquote style */
+blockquote{
+  border-left: 3px solid rgba(51,255,119,0.08);
+  padding-left: 1rem; margin-left:0; color:var(--muted);
+  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.01));
+}
+
+/* Forms and inputs */
+input, textarea, select{
+  background: rgba(255,255,255,0.02); color:var(--neon) !important; border:1px solid rgba(51,255,119,0.05); padding:.5rem; border-radius:6px;
+}
+
+/* Images: subtle frame */
+.post img, article img{
+  border:1px solid rgba(255,255,255,0.03); border-radius:6px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+
+/* Footer */
+.site-footer{
+  color: var(--muted) !important; border-top:1px solid rgba(51,255,119,0.03); padding-top:1rem; margin-top:2rem;
+}
+
+/* Accessibility: ensure contrast on small elements */
+.summary, small, .tag, .tags a{ color:var(--muted) !important; }
+
+/* Slight flicker on the site title for authenticity */
+@keyframes flicker{
+  0% { opacity:1; }
+  7% { opacity:0.85; }
+  10% { opacity:1; }
+  12% { opacity:0.9; }
+  15% { opacity:1; }
+  100% { opacity:1; }
+}
+.site-title{ animation: flicker 4s linear infinite; }
+
+/* Responsive tweaks */
+@media (max-width:768px){
+  .container, .post, article{ padding: 1rem; }
+  .post-title{ font-size: 1.25rem; }
+}
+
+/* Ensure minima theme nav and sidebar elements inherit the theme */
+.site-nav a, .social a{ color:var(--neon) !important; }
+
+/* Keep override specificity high enough to win */
+body .post, body .site{ box-sizing: border-box; }
