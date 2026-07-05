@@ -3,6 +3,7 @@
    - Monospace fonts, neon green accents
    - Glowing links and buttons
    - Styled posts, code blocks, and a subtle "matrix" animated background
+   - Improved section contrast: cards, separators, headers, and stronger borders
    - Keep selectors scoped so it overrides minima cleanly
 */
 
@@ -11,10 +12,12 @@
 :root{
   --bg-1: #060606; /* deep black */
   --bg-2: #07100a; /* subtle dark green tint */
+  --card-bg: rgba(7,16,10,0.6);
   --neon: #33ff77;
   --neon-dim: rgba(51,255,119,0.14);
   --muted: #7f9a86;
   --glass: rgba(255,255,255,0.03);
+  --panel-border: rgba(51,255,119,0.08);
 }
 
 html,body{
@@ -110,16 +113,39 @@ a:hover::after{ transform: scaleX(1); opacity:1; }
 
 a:hover{ filter: drop-shadow(0 0 6px rgba(51,255,119,0.18)); }
 
-/* Main content card look */
-.container, .content, .post, article{
-  background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(0,0,0,0.02));
-  border: 1px solid rgba(51,255,119,0.06);
-  box-shadow: 0 6px 30px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.01);
-  border-radius: 8px;
+/* Main content card look: stronger panel separation */
+.container, .content, .post, article, .page,
+.main-content, .home-main{
+  background: linear-gradient(180deg, rgba(7,16,10,0.75), rgba(0,0,0,0.55));
+  border: 1px solid var(--panel-border);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+  border-radius: 10px;
   padding: 1.25rem 1.5rem;
 }
 
-/* Posts */
+/* Additional panel used for lists of posts (separate from the page container) */
+.post-list, .posts, .collection, .articles{
+  background: linear-gradient(180deg, rgba(7,16,10,0.5), rgba(0,0,0,0.35));
+  border: 1px solid rgba(51,255,119,0.05);
+  padding: .6rem;
+  border-radius: 8px;
+}
+
+/* Individual post card for contrast inside lists */
+.post-list .post, .posts .post, article.post{
+  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(7,16,10,0.2));
+  border-left: 3px solid rgba(51,255,119,0.06);
+  padding: 1rem 1.15rem; margin: .6rem 0; border-radius: 6px;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.post-list .post:hover, .posts .post:hover{ transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+
+/* Post header separation */
+.post .post-header, .post-header, .post-title-wrapper{
+  border-bottom: 1px dashed rgba(51,255,119,0.04);
+  padding-bottom: .6rem; margin-bottom: .6rem;
+}
+
 .post-title, .post-title a{
   color: var(--neon) !important;
   font-size: 1.5rem;
@@ -129,6 +155,13 @@ a:hover{ filter: drop-shadow(0 0 6px rgba(51,255,119,0.18)); }
 .post-meta, .post_date, .post .byline, .meta{
   color: var(--muted) !important;
   font-size: 0.9rem;
+}
+
+/* Excerpt/content separation */
+.post-excerpt, .post-content, .entry-content{
+  background: transparent; /* keep layered look */
+  color: var(--neon);
+  padding-top: .4rem;
 }
 
 /* HR */
@@ -141,7 +174,7 @@ hr{
 
 /* Post navigation (keep your layout but tune for theme) */
 .post_navi{ display:flex; gap:1rem; justify-content:space-between; align-items:center; }
-.post_navi .post_navi-item{ padding:0.6rem 1rem; border-radius:6px; background: rgba(0,0,0,0.03); border: 1px solid rgba(51,255,119,0.04); }
+.post_navi .post_navi-item{ padding:0.6rem 1rem; border-radius:6px; background: rgba(0,0,0,0.06); border: 1px solid rgba(51,255,119,0.04); }
 .post_navi .post_navi-arrow{ color:var(--neon); font-size:1.6rem; opacity:0.6; }
 .post_navi-label{ color:var(--muted); font-size:0.85rem; }
 
@@ -157,7 +190,7 @@ hr{
 
 /* Code blocks and inline code */
 pre, code, kbd{
-  background: rgba(0,0,0,0.14) !important;
+  background: rgba(0,0,0,0.2) !important;
   color: var(--neon) !important;
   border: 1px solid rgba(51,255,119,0.06);
   padding: .4rem .6rem; border-radius: 6px;
@@ -208,6 +241,7 @@ input, textarea, select{
 @media (max-width:768px){
   .container, .post, article{ padding: 1rem; }
   .post-title{ font-size: 1.25rem; }
+  .post-list .post, .posts .post{ padding: .8rem; }
 }
 
 /* Ensure minima theme nav and sidebar elements inherit the theme */
@@ -215,3 +249,8 @@ input, textarea, select{
 
 /* Keep override specificity high enough to win */
 body .post, body .site{ box-sizing: border-box; }
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce){
+  * { animation: none !important; transition: none !important; }
+}
