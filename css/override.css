@@ -254,3 +254,114 @@ body .post, body .site{ box-sizing: border-box; }
 @media (prefers-reduced-motion: reduce){
   * { animation: none !important; transition: none !important; }
 }
+
+/* Contrast + section separation improvements for hacker theme */
+
+/* stronger panel and card backgrounds */
+:root {
+  --panel-border-strong: rgba(51,255,119,0.14);
+  --card-bg-strong: rgba(3,8,5,0.86);
+  --post-bg: rgba(2,6,4,0.65);
+}
+
+/* narrow page and center content so panels read as distinct cards */
+.site, .page, main {
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1.25rem;
+}
+
+/* overall container becomes a subtle elevated panel */
+.container, .content, .home-main {
+  background: linear-gradient(180deg, var(--card-bg-strong), rgba(0,0,0,0.6));
+  border: 1px solid var(--panel-border-strong);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.75);
+}
+
+/* post list: each post is a clear card with accent bar */
+.post-list .post, .posts .post, article.post {
+  background: linear-gradient(180deg, var(--post-bg), rgba(0,0,0,0.45));
+  border-left: 4px solid rgba(51,255,119,0.08);
+  padding: 1rem 1.2rem;
+  margin: 0.65rem 0;
+  border-radius: 8px;
+  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
+}
+
+/* hover/active gives a gentle lift and stronger accent */
+.post-list .post:hover, .posts .post:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 22px 60px rgba(0,0,0,0.75);
+  border-left-color: rgba(51,255,119,0.18);
+}
+
+/* separate posts with a subtle divider when stacked */
+.post-list .post + .post, .posts .post + .post {
+  border-top: 1px solid rgba(51,255,119,0.03);
+  margin-top: 0.8rem;
+  padding-top: 0.9rem;
+}
+
+/* post header band for clear meta separation */
+.post .post-header, .post-header {
+  background: linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12));
+  padding: .55rem .8rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.02);
+  margin-bottom: .8rem;
+}
+
+/* footer band for each post */
+.post .post-footer {
+  background: rgba(0,0,0,0.12);
+  padding: .5rem .75rem;
+  border-radius: 6px;
+  margin-top: .9rem;
+  border-top: 1px dashed rgba(51,255,119,0.03);
+}
+
+/* tag pills with contrast */
+.tag, .tags a {
+  display: inline-block;
+  background: rgba(51,255,119,0.04);
+  color: var(--neon) !important;
+  border: 1px solid rgba(51,255,119,0.08);
+  padding: .25rem .5rem;
+  border-radius: 999px;
+  font-size: .85rem;
+  margin-right: .35rem;
+}
+
+/* stronger focus outlines for keyboard users */
+a:focus, button:focus, .btn:focus, .post .post-title a:focus {
+  outline: 3px solid rgba(51,255,119,0.14);
+  outline-offset: 3px;
+  box-shadow: 0 0 12px rgba(51,255,119,0.06);
+}
+
+/* give inline content (excerpts) a readable leading block */
+.post-excerpt, .post-content, .entry-content {
+  line-height: 1.65;
+  color: var(--neon);
+}
+
+/* make code blocks slightly darker/contained inside cards */
+pre {
+  background: rgba(0,0,0,0.28) !important;
+  border: 1px solid rgba(51,255,119,0.07);
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+/* small visual divider utility */
+.card-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.04), transparent);
+  margin: 0.8rem 0;
+}
+
+/* reduce motion for users who prefer it (reinforce earlier rule) */
+@media (prefers-reduced-motion: reduce) {
+  .post-list .post, .posts .post { transform: none !important; transition: none !important; }
+}
