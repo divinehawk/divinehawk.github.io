@@ -1,142 +1,18 @@
-/* GitHub Blog-inspired theme for DivineHawk AI
-   - Purpose: match the color, spacing, and typography aesthetics of the GitHub Blog
-   - Key changes: neutral palette, GitHub blue accents, refined typographic scale, roomy spacing, readable measure
-   - Keep file scoped as override to minimally touch theme templates
-*/
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap');
-
-:root{
-  --page-bg: #ffffff;              /* clean white page */
-  --muted-ink: #57606a;           /* muted text for meta/captions */
-  --text: #0f1724;                /* primary body text */
-  --github-blue: #0969da;         /* GitHub brand blue for accents/links */
-  --surface-border: rgba(15,23,36,0.06);
-  --card-radius: 12px;
-  --content-max-width: 760px;     /* comfortable reading measure similar to GitHub Blog */
+/* Header logo / wordmark layout */
+.site-logo {
+  width:48px;
+  height:48px;
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:12px;
+  border-radius:8px;
 }
-
-html, body{
-  background: var(--page-bg) !important;
-  color: var(--text) !important;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  line-height: 1.7;
-}
-
-/* Remove previous heavy decorations/animations */
-body::before, body::after { display: none !important; }
-
-/* Constrain the main content like GitHub blog */
-.main-content, .post, article, .page, .container {
-  max-width: var(--content-max-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding: 28px 18px;
-  background: transparent;
-  box-shadow: none;
-  border: none;
-}
-
-/* Site header: subtle, compact */
-.site-header{ background: transparent; padding: 16px 0; border-bottom: 1px solid rgba(15,23,36,0.04); }
-.header-inner{ max-width: 1100px; margin: 0 auto; padding: 0 18px; display:flex; align-items:center; justify-content:space-between; }
-.site-title{ font-family: 'Inter', system-ui, sans-serif; font-weight:700; color:var(--text); font-size:1.05rem; display:flex; align-items:center; gap:12px; text-decoration:none; }
-.site-logo{ width:44px; height:44px; display:inline-block; vertical-align:middle; border-radius:8px; }
-.site-description{ color:var(--muted-ink); font-size:0.95rem; }
-
-/* Navigation */
-.site-nav a{ color:var(--muted-ink); text-decoration:none; padding:6px 10px; border-radius:8px; font-weight:600; }
-.site-nav a:hover{ color:var(--github-blue); background: rgba(9,105,218,0.06); }
-
-/* Post title and meta like GitHub blog */
-.post-header{ padding: 6px 0 12px; margin-bottom: 18px; }
-.post-title{ font-family: 'Inter', system-ui, sans-serif; font-weight:800; line-height:1.08; font-size:2rem; color:var(--text); margin:0 0 8px; }
-.post-meta, .post .byline, .post_date{ color:var(--muted-ink); font-size:0.95rem; }
-
-/* Content typography tuned for markdown readability */
-.post-content, .entry-content, .post-excerpt, .post p, .post li{
-  color: var(--text);
-  font-size:1.05rem;
-  line-height:1.85;
-  letter-spacing:0.01em;
-}
-
-.post-article{ max-width: 760px; }
-
-/* Headings with subtle weight and spacing */
-.post-content h1, .post-content h2, .post-content h3, .post h1, .post h2{
+.site-title-text {
   font-family: 'Inter', system-ui, sans-serif;
-  color:var(--text);
   font-weight:700;
-  margin-top:1.6rem;
-  margin-bottom:0.6rem;
-  line-height:1.2;
+  font-size:1.05rem;
+  color:var(--text);
+  vertical-align:middle;
 }
-.post-content h1{ font-size:2rem; }
-.post-content h2{ font-size:1.5rem; }
-.post-content h3{ font-size:1.2rem; }
-
-/* Links and inline code */
-a, a code{ color:var(--github-blue); text-decoration: none; }
-a:hover{ text-decoration: underline; }
-code{ background: rgba(15,23,36,0.04); padding:2px 6px; border-radius:6px; font-family: 'Source Code Pro', monospace; font-size:0.95em; }
-
-/* Blockquote styled like GitHub blog */
-blockquote{
-  border-left: 4px solid rgba(9,105,218,0.12);
-  margin:1rem 0; padding: .6rem 1rem; color:var(--muted-ink); background: rgba(9,105,218,0.02); border-radius:6px;
-}
-
-/* Lists */
-ul, ol{ margin: 1rem 0 1rem 1.25rem; }
-
-/* Images: full-width within content, framed with caption */
-.post-content figure, .entry-content figure{
-  margin: 1.25rem 0; overflow: hidden; border-radius:8px; border:1px solid rgba(15,23,36,0.04);
-}
-.post-content img, .entry-content img{ width:100%; height:auto; display:block; }
-.post-content figcaption, .entry-content figcaption{ font-size:0.9rem; color:var(--muted-ink); padding:8px 10px; background: rgba(246,248,250,0.6); }
-
-/* Horizontal rule: subtle */
-hr{ border: none; height:1px; background: linear-gradient(90deg, rgba(15,23,36,0.02), rgba(15,23,36,0.06), rgba(15,23,36,0.02)); margin:28px 0; }
-
-/* Code blocks like GitHub blog: dark block with rounded corners */
-pre{ background:#0f1724; color:#e6f0ff; padding:16px; border-radius:8px; overflow:auto; font-family: 'Source Code Pro', monospace; font-size:0.95rem; }
-pre code{ background: transparent; color:inherit; padding:0; }
-
-/* Tables: clean boxed look */
-table{ width:100%; border-collapse: collapse; margin:1rem 0; }
-table thead tr{ background: rgba(15,23,36,0.03); }
-td, th{ padding:10px 12px; border:1px solid rgba(15,23,36,0.04); }
-
-/* Buttons: GitHub-like primary */
-.button, .btn{ display:inline-block; padding:8px 14px; border-radius:8px; font-weight:600; color:white; background: linear-gradient(90deg, var(--github-blue), #1b74e4); border:none; text-decoration:none; }
-.button.secondary{ background: transparent; color:var(--github-blue); border:1px solid rgba(9,105,218,0.08); }
-
-/* Tags/pills */
-.tags a{ display:inline-block; padding:6px 10px; background: rgba(9,105,218,0.06); color:var(--github-blue); border-radius:999px; font-size:0.85rem; margin-right:6px; }
-
-/* Footer styling */
-.site-footer{ max-width:var(--content-max-width); margin:36px auto; padding:18px; color:var(--muted-ink); font-size:0.95rem; text-align:center; }
-
-/* Post navigation: keep subtle cardless layout */
-.post_navi{ display:flex; gap:18px; justify-content:space-between; align-items:center; margin-top:28px; }
-.post_navi .post_navi-item{ padding: 10px 12px; border-radius:8px; color:var(--muted-ink); text-decoration:none; display:flex; gap:12px; align-items:center; }
-.post_navi .post_navi-item:hover{ background: rgba(15,23,36,0.02); }
-.post_navi .post_navi-arrow{ font-weight:700; color:var(--muted-ink); }
-
-/* Accessibility & focus outlines */
-a:focus, button:focus{ outline: 3px solid rgba(9,105,218,0.12); outline-offset:3px; }
-
-/* Mobile adjustments */
-@media (max-width:880px){
-  .main-content{ padding:18px; }
-  .post-title{ font-size:1.6rem; }
-  :root{ --content-max-width: 92%; }
-}
-
-/* Respect reduced motion */
-@media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+.site-header { padding:12px 0; border-bottom: 1px solid rgba(15,23,36,0.04); }
+.header-inner { max-width:1100px; margin:0 auto; padding:0 18px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
