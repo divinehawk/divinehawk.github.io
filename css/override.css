@@ -1,461 +1,158 @@
-/* Hacker-style override CSS for divinehawk.github.io
-   - Dark terminal background
-   - Monospace fonts, neon green accents
-   - Glowing links and buttons
-   - Styled posts, code blocks, and a subtle "matrix" animated background
-   - Improved section contrast: cards, separators, headers, and stronger borders
-   - Keep selectors scoped so it overrides minima cleanly
+/* Professional Fortune-100 AI company theme
+   - Switch to a modern, clean corporate look (light background, calm blues)
+   - Use Inter for UI, Source Code Pro for code blocks
+   - Refined typographic scale, improved spacing and readable measure
+   - Subtle gradients, card elevation, clearer header/hero, polished buttons
+   - Accessible focus styles and reduced-motion support
 */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400;700&display=swap');
 
 :root{
-  --bg-1: #060606; /* deep black */
-  --bg-2: #07100a; /* subtle dark green tint */
-  --card-bg: rgba(7,16,10,0.6);
-  --neon: #33ff77;
-  --neon-dim: rgba(51,255,119,0.14);
-  --muted: #7f9a86;
-  --glass: rgba(255,255,255,0.03);
-  --panel-border: rgba(51,255,119,0.08);
+  /* Core palette */
+  --bg: #f6f8fb;              /* page background */
+  --card: #ffffff;            /* card background */
+  --muted-ink: #6b7280;       /* muted gray for meta/captions */
+  --text: #0f1724;            /* main body text */
+  --accent: #0ea5ff;         /* primary accent (blue/cyan) */
+  --accent-2: #2563eb;       /* deeper accent for buttons */
+  --surface-border: rgba(15,23,36,0.06);
+  --radius: 12px;
+  --container-width: 980px;   /* comfortable reading width */
 }
 
-html,body{
+html, body{
   height:100%;
-  background-color:var(--bg-1) !important;
-  color:var(--neon) !important;
-  font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace !important;
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
+  line-height:1.6;
 }
 
-/* Subtle layered animated background to suggest "matrix" rain */
-body::before,
-body::after{
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* faint vertical scanning lines */
-body::before{
-  background-image: linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(255,255,255,0.015) 50%, rgba(0,0,0,0) 100%);
-  background-size: 6px 100%;
-  mix-blend-mode: screen;
-  opacity: 0.8;
-  animation: scan 8s linear infinite;
-}
-
-@keyframes scan{
-  from { transform: translateX(-10%); }
-  to   { transform: translateX(10%); }
-}
-
-/* moving binary-like gradient layer */
-body::after{
-  background-image: linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,255,115,0.02) 10%, rgba(0,0,0,0) 20%);
-  background-size: 100% 120px;
-  opacity: 0.35;
-  filter: blur(0.6px);
-  animation: drift 10s linear infinite;
-}
-
-@keyframes drift{
-  from { background-position-y: 0; }
-  to   { background-position-y: 120px; }
-}
-
-/* Page container adjustments so content sits above background */
+/* Site container and centered layout */
 .site, .page, main, .wrapper{
   position: relative;
   z-index: 1;
 }
 
-/* header and site title */
-.site-header, .site-title, .site-description{
-  color: var(--neon) !important;
-  text-shadow: 0 0 8px rgba(51,255,119,0.08), 0 0 20px rgba(51,255,119,0.02);
+.container, .content, .post, article{
+  background: transparent; /* keep layout from theme; use page cards below */
 }
 
-.site-title a{
-  color: var(--neon) !important;
-  text-decoration: none;
-  letter-spacing: 0.06em;
-  font-weight: 700;
+/* Top header / hero area */
+.site-header{
+  background: linear-gradient(180deg, rgba(255,255,255,0.8), rgba(246,248,251,0.95));
+  border-bottom: 1px solid var(--surface-border);
+  padding: 20px 0;
 }
 
-.site-description{
-  color: var(--muted) !important;
-  font-size: 0.95rem;
+.header-inner{
+  max-width: var(--container-width);
+  margin: 0 auto; padding: 0 20px; display:flex; align-items:center; justify-content:space-between;
 }
 
-/* Links with neon glow */
-a, a code{
-  color: var(--neon) !important;
-  text-decoration: none;
-  position: relative;
+.site-title{
+  font-weight:700; font-size:1.25rem; color:var(--text);
+  display:flex; gap:12px; align-items:center; text-decoration:none;
 }
 
-a::after{
-  content: "";
-  position: absolute;
-  left:0; right:0; bottom: -2px; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--neon-dim), transparent);
-  opacity: 0.6;
-  transition: transform .18s ease, opacity .18s ease;
-  transform-origin: left center;
-  transform: scaleX(0);
+.site-title .logo {
+  width:44px; height:44px; display:inline-block; border-radius:8px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  box-shadow: 0 6px 20px rgba(37,99,235,0.12);
 }
 
-a:hover::after{ transform: scaleX(1); opacity:1; }
+.site-description{ color:var(--muted-ink); font-size:0.95rem; }
 
-a:hover{ filter: drop-shadow(0 0 6px rgba(51,255,119,0.18)); }
-
-/* Main content card look: stronger panel separation */
-.container, .content, .post, article, .page,
-.main-content, .home-main{
-  background: linear-gradient(180deg, rgba(7,16,10,0.75), rgba(0,0,0,0.55));
-  border: 1px solid var(--panel-border);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
-  border-radius: 10px;
-  padding: 1.25rem 1.5rem;
+/* Navigation */
+.site-nav, .social{
+  display:flex; gap:14px; align-items:center;
 }
 
-/* Additional panel used for lists of posts (separate from the page container) */
-.post-list, .posts, .collection, .articles{
-  background: linear-gradient(180deg, rgba(7,16,10,0.5), rgba(0,0,0,0.35));
-  border: 1px solid rgba(51,255,119,0.05);
-  padding: .6rem;
-  border-radius: 8px;
+.site-nav a{
+  color:var(--text); text-decoration:none; font-weight:600; font-size:0.95rem; padding:6px 10px; border-radius:8px;
+}
+.site-nav a:hover{ background: rgba(14,165,255,0.08); color:var(--accent-2); }
+
+/* Page content wrapper - center and constrain width */
+.main-content{
+  max-width: var(--container-width);
+  margin: 28px auto; padding: 20px;
 }
 
-/* Individual post card for contrast inside lists */
-.post-list .post, .posts .post, article.post{
-  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(7,16,10,0.2));
-  border-left: 3px solid rgba(51,255,119,0.06);
-  padding: 1rem 1.15rem; margin: .6rem 0; border-radius: 6px;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-.post-list .post:hover, .posts .post:hover{ transform: translateY(-4px); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-
-/* Post header separation */
-.post .post-header, .post-header, .post-title-wrapper{
-  border-bottom: 1px dashed rgba(51,255,119,0.04);
-  padding-bottom: .6rem; margin-bottom: .6rem;
+/* Main panels / cards */
+.page-panel{
+  background: var(--card);
+  border: 1px solid var(--surface-border);
+  box-shadow: 0 10px 30px rgba(15,23,36,0.04);
+  border-radius: var(--radius);
+  padding: 28px;
 }
 
-.post-title, .post-title a{
-  color: var(--neon) !important;
-  font-size: 1.5rem;
-  letter-spacing: 0.03em;
+/* Post list: card grid or stacked list */
+.posts{ display:flex; flex-direction:column; gap:16px; }
+.post-card{
+  display:block; background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border-radius: 10px; border: 1px solid rgba(15,23,36,0.04);
+  padding: 18px; transition: transform .14s ease, box-shadow .14s ease;
 }
+.post-card:hover{ transform: translateY(-6px); box-shadow: 0 18px 48px rgba(15,23,36,0.06); }
 
-.post-meta, .post_date, .post .byline, .meta{
-  color: var(--muted) !important;
-  font-size: 0.9rem;
+.post-card .meta{ color:var(--muted-ink); font-size:0.9rem; }
+.post-card .title{ color:var(--text); font-weight:700; font-size:1.15rem; margin-bottom:6px; }
+.post-card .excerpt{ color:#334155; }
+
+/* Post detail readability */
+.post-article{
+  max-width: 740px; margin: 0 auto; color: var(--text);
 }
-
-/* Excerpt/content separation */
-.post-excerpt, .post-content, .entry-content{
-  background: transparent; /* keep layered look */
-  color: var(--neon);
-  padding-top: .4rem;
+.post-article p, .post-article li{ font-size:1.05rem; line-height:1.8; color:#243243; }
+.post-article h1, .post-article h2, .post-article h3{
+  color:var(--text); font-weight:700; margin-top:1.4rem; margin-bottom:.6rem; letter-spacing:-0.01em;
 }
+.post-article h2{ font-size:1.35rem; }
+.post-article h3{ font-size:1.15rem; }
 
-/* HR */
-hr{
-  border: none;
-  height:1px;
-  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.06), transparent);
-  margin: 28px 0;
-}
+/* Images and figures */
+.post-article figure{ margin:1.25rem 0; border-radius:8px; overflow:hidden; border:1px solid rgba(15,23,36,0.04); }
+.post-article img{ width:100%; height:auto; display:block; }
+.post-article figcaption{ font-size:0.9rem; color:var(--muted-ink); padding:10px 12px; background:rgba(246,248,251,0.6); }
 
-/* Post navigation (keep your layout but tune for theme) */
-.post_navi{ display:flex; gap:1rem; justify-content:space-between; align-items:center; }
-.post_navi .post_navi-item{ padding:0.6rem 1rem; border-radius:6px; background: rgba(0,0,0,0.06); border: 1px solid rgba(51,255,119,0.04); }
-.post_navi .post_navi-arrow{ color:var(--neon); font-size:1.6rem; opacity:0.6; }
-.post_navi-label{ color:var(--muted); font-size:0.85rem; }
-
-/* Buttons and callouts */
-.button, button, .btn{
-  background: linear-gradient(90deg, rgba(51,255,119,0.08), rgba(51,255,119,0.04));
-  color: var(--neon) !important;
-  border: 1px solid rgba(51,255,119,0.12);
-  padding: .5rem .8rem; border-radius:6px;
-  transition: transform .12s ease, box-shadow .12s ease;
-}
-.button:hover, button:hover, .btn:hover{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(51,255,119,0.06); }
-
-/* Code blocks and inline code */
+/* Code blocks */
 pre, code, kbd{
-  background: rgba(0,0,0,0.2) !important;
-  color: var(--neon) !important;
-  border: 1px solid rgba(51,255,119,0.06);
-  padding: .4rem .6rem; border-radius: 6px;
-  font-family: 'Source Code Pro', ui-monospace, monospace !important;
+  font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Courier New', monospace !important;
 }
-
 pre{
-  overflow:auto; padding:1rem; line-height:1.5; font-size:0.95rem;
+  background: #0f1724; color: #e6f0ff; padding:16px; border-radius:8px; overflow:auto; font-size:0.95rem; border:1px solid rgba(255,255,255,0.03);
 }
+code{ background: rgba(15,23,36,0.05); padding: 2px 6px; border-radius:6px; }
 
-/* Blockquote style */
-blockquote{
-  border-left: 3px solid rgba(51,255,119,0.08);
-  padding-left: 1rem; margin-left:0; color:var(--muted);
-  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.01));
+/* Buttons */
+.button, .btn{
+  display:inline-block; padding:10px 16px; border-radius:10px; font-weight:600; color:white; background: linear-gradient(90deg,var(--accent),var(--accent-2)); border:none; text-decoration:none;
 }
+.button.secondary{ background: transparent; color:var(--accent-2); border:1px solid rgba(37,99,235,0.12); }
+.button:active{ transform: translateY(1px); }
 
-/* Forms and inputs */
-input, textarea, select{
-  background: rgba(255,255,255,0.02); color:var(--neon) !important; border:1px solid rgba(51,255,119,0.05); padding:.5rem; border-radius:6px;
-}
-
-/* Images: subtle frame */
-.post img, article img{
-  border:1px solid rgba(255,255,255,0.03); border-radius:6px; box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-}
+/* Tags */
+.tags a{ display:inline-block; padding:6px 10px; background:rgba(14,165,255,0.06); color:var(--accent-2); border-radius:999px; font-size:0.85rem; margin-right:6px; }
 
 /* Footer */
-.site-footer{
-  color: var(--muted) !important; border-top:1px solid rgba(51,255,119,0.03); padding-top:1rem; margin-top:2rem;
+.site-footer{ max-width:var(--container-width); margin:32px auto; padding:18px 20px; color:var(--muted-ink); font-size:0.95rem; }
+
+/* Accessibility & focus */
+a:focus, button:focus{ outline: 3px solid rgba(14,165,255,0.16); outline-offset:3px; }
+
+/* Mobile adjustments */
+@media (max-width:880px){
+  .header-inner{ padding:0 16px; }
+  .main-content{ padding:14px; }
+  .post-article{ padding: 0 6px; }
 }
 
-/* Accessibility: ensure contrast on small elements */
-.summary, small, .tag, .tags a{ color:var(--muted) !important; }
-
-/* Slight flicker on the site title for authenticity */
-@keyframes flicker{
-  0% { opacity:1; }
-  7% { opacity:0.85; }
-  10% { opacity:1; }
-  12% { opacity:0.9; }
-  15% { opacity:1; }
-  100% { opacity:1; }
-}
-.site-title{ animation: flicker 4s linear infinite; }
-
-/* Responsive tweaks */
-@media (max-width:768px){
-  .container, .post, article{ padding: 1rem; }
-  .post-title{ font-size: 1.25rem; }
-  .post-list .post, .posts .post{ padding: .8rem; }
-}
-
-/* Ensure minima theme nav and sidebar elements inherit the theme */
-.site-nav a, .social a{ color:var(--neon) !important; }
-
-/* Keep override specificity high enough to win */
-body .post, body .site{ box-sizing: border-box; }
-
-/* Respect reduced motion preference */
+/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce){
-  * { animation: none !important; transition: none !important; }
-}
-
-/* Contrast + section separation improvements for hacker theme */
-
-/* stronger panel and card backgrounds */
-:root {
-  --panel-border-strong: rgba(51,255,119,0.14);
-  --card-bg-strong: rgba(3,8,5,0.86);
-  --post-bg: rgba(2,6,4,0.65);
-}
-
-/* narrow page and center content so panels read as distinct cards */
-.site, .page, main {
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 2rem 1.25rem;
-}
-
-/* overall container becomes a subtle elevated panel */
-.container, .content, .home-main {
-  background: linear-gradient(180deg, var(--card-bg-strong), rgba(0,0,0,0.6));
-  border: 1px solid var(--panel-border-strong);
-  box-shadow: 0 18px 50px rgba(0,0,0,0.75);
-}
-
-/* post list: each post is a clear card with accent bar */
-.post-list .post, .posts .post, article.post {
-  background: linear-gradient(180deg, var(--post-bg), rgba(0,0,0,0.45));
-  border-left: 4px solid rgba(51,255,119,0.08);
-  padding: 1rem 1.2rem;
-  margin: 0.65rem 0;
-  border-radius: 8px;
-  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
-}
-
-/* hover/active gives a gentle lift and stronger accent */
-.post-list .post:hover, .posts .post:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 22px 60px rgba(0,0,0,0.75);
-  border-left-color: rgba(51,255,119,0.18);
-}
-
-/* separate posts with a subtle divider when stacked */
-.post-list .post + .post, .posts .post + .post {
-  border-top: 1px solid rgba(51,255,119,0.03);
-  margin-top: 0.8rem;
-  padding-top: 0.9rem;
-}
-
-/* post header band for clear meta separation */
-.post .post-header, .post-header {
-  background: linear-gradient(90deg, rgba(0,0,0,0.22), rgba(0,0,0,0.12));
-  padding: .55rem .8rem;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.02);
-  margin-bottom: .8rem;
-}
-
-/* footer band for each post */
-.post .post-footer {
-  background: rgba(0,0,0,0.12);
-  padding: .5rem .75rem;
-  border-radius: 6px;
-  margin-top: .9rem;
-  border-top: 1px dashed rgba(51,255,119,0.03);
-}
-
-/* tag pills with contrast */
-.tag, .tags a {
-  display: inline-block;
-  background: rgba(51,255,119,0.04);
-  color: var(--neon) !important;
-  border: 1px solid rgba(51,255,119,0.08);
-  padding: .25rem .5rem;
-  border-radius: 999px;
-  font-size: .85rem;
-  margin-right: .35rem;
-}
-
-/* stronger focus outlines for keyboard users */
-a:focus, button:focus, .btn:focus, .post .post-title a:focus {
-  outline: 3px solid rgba(51,255,119,0.14);
-  outline-offset: 3px;
-  box-shadow: 0 0 12px rgba(51,255,119,0.06);
-}
-
-/* give inline content (excerpts) a readable leading block */
-.post-excerpt, .post-content, .entry-content {
-  line-height: 1.65;
-  color: var(--neon);
-}
-
-/* make code blocks slightly darker/contained inside cards */
-pre {
-  background: rgba(0,0,0,0.28) !important;
-  border: 1px solid rgba(51,255,119,0.07);
-  padding: 1rem;
-  border-radius: 8px;
-}
-
-/* small visual divider utility */
-.card-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.04), transparent);
-  margin: 0.8rem 0;
-}
-
-/* reduce motion for users who prefer it (reinforce earlier rule) */
-@media (prefers-reduced-motion: reduce) {
-  .post-list .post, .posts .post { transform: none !important; transition: none !important; }
-}
-
-/* Readability improvements for markdown posts & images */
-:root{
-  --content-text: #eafbf0;    /* soft off-white for long-form text */
-  --heading-color: var(--neon); /* keep neon for headings */
-  --content-max-width: 780px; /* comfortable reading width */
-  --content-padding: 1.25rem;
-}
-
-/* Make post content easier to read */
-.post-content, .entry-content, .post-excerpt, .post p, .post li {
-  color: var(--content-text) !important;
-  font-size: 1.05rem;
-  line-height: 1.75;
-  letter-spacing: 0.01em;
-}
-
-/* Limit measure for long-form text and center */
-.post, article, .entry {
-  max-width: var(--content-max-width);
-  margin-left: auto;
-  margin-right: auto;
-  padding: var(--content-padding);
-  background: rgba(3,8,5,0.94); /* slightly more opaque so text pops */
-}
-
-/* Headings: neon accents but not blinding */
-.post-content h1, .post-content h2, .post-content h3, .post h1, .post h2 {
-  color: var(--heading-color) !important;
-  line-height: 1.2;
-  margin-top: 1.1em;
-  margin-bottom: 0.45em;
-  text-shadow: 0 0 6px rgba(51,255,119,0.06);
-  font-weight: 700;
-}
-
-/* Subtle divider for sections inside posts */
-.post-content h2::after, .post-content h3::after{
-  content: "";
-  display: block;
-  height: 1px;
-  width: 60px;
-  margin-top: 0.6rem;
-  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.06), transparent);
-}
-
-/* Images & figures: responsive, framed and captioned */
-.post-content figure, .entry-content figure {
-  margin: 1.05rem 0;
-  padding: 0.6rem;
-  background: rgba(0,0,0,0.18);
-  border: 1px solid rgba(51,255,119,0.04);
-  border-radius: 8px;
-  overflow: hidden;
-  text-align: center;
-}
-.post-content img, .entry-content img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-  border-radius: 6px;
-  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
-}
-.post-content figcaption, .entry-content figcaption {
-  color: var(--muted);
-  font-size: 0.9rem;
-  margin-top: 0.45rem;
-  opacity: 0.95;
-}
-
-/* Reduce background animation intensity directly under the site content */
-.site::before, .site::after {
-  opacity: 0.18; /* tone down animated layers that sit behind site container */
-}
-.container, .content, .post {
-  background: linear-gradient(180deg, rgba(7,16,10,0.96), rgba(0,0,0,0.85)); /* more opaque panel */
-}
-
-/* Improve code block contrast inside posts */
-.post-content pre, article pre {
-  background: rgba(0,0,0,0.34) !important;
-  border: 1px solid rgba(51,255,119,0.06);
-  padding: 1.05rem;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-}
-
-/* Small responsive tweak to keep measure narrow on mobile */
-@media (max-width: 720px) {
-  :root{ --content-max-width: 92%; }
-  .post-content, .entry-content { font-size: 1rem; line-height: 1.6; }
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
