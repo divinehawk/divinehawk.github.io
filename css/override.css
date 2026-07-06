@@ -365,3 +365,97 @@ pre {
 @media (prefers-reduced-motion: reduce) {
   .post-list .post, .posts .post { transform: none !important; transition: none !important; }
 }
+
+/* Readability improvements for markdown posts & images */
+:root{
+  --content-text: #eafbf0;    /* soft off-white for long-form text */
+  --heading-color: var(--neon); /* keep neon for headings */
+  --content-max-width: 780px; /* comfortable reading width */
+  --content-padding: 1.25rem;
+}
+
+/* Make post content easier to read */
+.post-content, .entry-content, .post-excerpt, .post p, .post li {
+  color: var(--content-text) !important;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  letter-spacing: 0.01em;
+}
+
+/* Limit measure for long-form text and center */
+.post, article, .entry {
+  max-width: var(--content-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding: var(--content-padding);
+  background: rgba(3,8,5,0.94); /* slightly more opaque so text pops */
+}
+
+/* Headings: neon accents but not blinding */
+.post-content h1, .post-content h2, .post-content h3, .post h1, .post h2 {
+  color: var(--heading-color) !important;
+  line-height: 1.2;
+  margin-top: 1.1em;
+  margin-bottom: 0.45em;
+  text-shadow: 0 0 6px rgba(51,255,119,0.06);
+  font-weight: 700;
+}
+
+/* Subtle divider for sections inside posts */
+.post-content h2::after, .post-content h3::after{
+  content: "";
+  display: block;
+  height: 1px;
+  width: 60px;
+  margin-top: 0.6rem;
+  background: linear-gradient(90deg, transparent, rgba(51,255,119,0.06), transparent);
+}
+
+/* Images & figures: responsive, framed and captioned */
+.post-content figure, .entry-content figure {
+  margin: 1.05rem 0;
+  padding: 0.6rem;
+  background: rgba(0,0,0,0.18);
+  border: 1px solid rgba(51,255,119,0.04);
+  border-radius: 8px;
+  overflow: hidden;
+  text-align: center;
+}
+.post-content img, .entry-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+}
+.post-content figcaption, .entry-content figcaption {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.45rem;
+  opacity: 0.95;
+}
+
+/* Reduce background animation intensity directly under the site content */
+.site::before, .site::after {
+  opacity: 0.18; /* tone down animated layers that sit behind site container */
+}
+.container, .content, .post {
+  background: linear-gradient(180deg, rgba(7,16,10,0.96), rgba(0,0,0,0.85)); /* more opaque panel */
+}
+
+/* Improve code block contrast inside posts */
+.post-content pre, article pre {
+  background: rgba(0,0,0,0.34) !important;
+  border: 1px solid rgba(51,255,119,0.06);
+  padding: 1.05rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Small responsive tweak to keep measure narrow on mobile */
+@media (max-width: 720px) {
+  :root{ --content-max-width: 92%; }
+  .post-content, .entry-content { font-size: 1rem; line-height: 1.6; }
+}
