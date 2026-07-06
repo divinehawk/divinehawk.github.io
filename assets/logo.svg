@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Logo: DivineHawk AI
+     - Uses your GitHub avatar image as the mark (embedded by URL)
+     - Clean, corporate wordmark with a subtle gradient accent
+     - Saved as assets/logo.svg in the repo
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="120" viewBox="0 0 560 120" role="img" aria-labelledby="title desc">
+  <title id="title">DivineHawk AI logo</title>
+  <desc id="desc">A professional wordmark with avatar mark for DivineHawk AI.</desc>
+
+  <defs>
+    <linearGradient id="gAccent" x1="0" x2="1">
+      <stop offset="0%" stop-color="#0ea5ff"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+    <clipPath id="circleClip">
+      <circle cx="60" cy="60" r="44" />
+    </clipPath>
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#10203b" flood-opacity="0.14" />
+    </filter>
+  </defs>
+
+  <!-- background plate (transparent so SVG works as inline img) -->
+  <g transform="translate(0,0)">
+    <!-- avatar image clipped into a circle -->
+    <g filter="url(#softShadow)">
+      <rect x="12" y="12" width="96" height="96" rx="14" fill="white" opacity="0.02" />
+      <image x="16" y="16" width="88" height="88" preserveAspectRatio="xMidYMid slice" clip-path="url(#circleClip)" href="https://avatars.githubusercontent.com/u/9158262?v=4" />
+      <!-- subtle ring -->
+      <circle cx="60" cy="60" r="46" fill="none" stroke="url(#gAccent)" stroke-width="3" opacity="0.95" />
+    </g>
+
+    <!-- Wordmark -->
+    <g transform="translate(140,44)">
+      <text x="0" y="-6" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial" font-weight="700" font-size="36" fill="#0f1724">DivineHawk</text>
+      <text x="0" y="30" font-family="Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial" font-weight="600" font-size="18" fill="#475569">AI • Research & Engineering</text>
+    </g>
+
+    <!-- Accent bar to the right as a small brand flourish -->
+    <rect x="480" y="22" width="12" height="76" rx="6" fill="url(#gAccent)" opacity="0.95" />
+
+  </g>
+</svg>
