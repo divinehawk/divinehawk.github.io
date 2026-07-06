@@ -1,19 +1,13 @@
-title: "Divinehawk's Blog"
-author: "divinehawk"
-description: "Divinehawk's Blog" # This will show up in places like twitter, linkedin, etc, if you share your sites url as a post.
+title: "DivineHawk AI"
+author: "DivineHawk"
+description: "Insights, research, and engineering notes from DivineHawk AI — machine learning, systems, and applied research."
 
 # Email / Social media user names used by the minima theme:
 # All of these are optional and can be removed or commented out
-#email: "example@mail.com"
-#twitter_username: "twitteruser"
+#email: "hello@divinehawk.ai"
+#twitter_username: ""
 github_username: "divinehawk"
-#linkedin_username: "linkedinuser"
-#facebook_username: username
-#flickr_username: username
-#instagram_username: username
-#pinterest_username: username
-#youtube_username: username
-#googleplus_username: +username
+#linkedin_username: ""
 
 #########################################################################################
 ######### Nothing below needs to be changed (unless you know what you're doing) #########
@@ -39,4 +33,4 @@ defaults:
       path: ""
       type: post
     values:
-      tags: Other
+      tags: AI
