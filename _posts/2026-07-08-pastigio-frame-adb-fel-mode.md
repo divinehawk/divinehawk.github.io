@@ -218,7 +218,7 @@ List of devices attached
 
 ## What's next
 
-With a working, authorized `adb` connection, the actual goal — sideloading ImmichFrame and pointing it at my self-hosted Immich server instead of relying on Frameo's cloud sharing — is just a matter of `adb install` and initial setup.
+With a working, authorized `adb` connection, follow the [ImmichFrame setup instructions for Frameo devices](https://immichframe.dev/docs/getting-started/apps#frameo) to sideload the app and configure it.
 
 ## If you're trying this yourself
 
