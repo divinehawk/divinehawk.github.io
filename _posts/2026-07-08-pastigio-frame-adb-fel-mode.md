@@ -1,12 +1,12 @@
 # Enabling ADB on a Pastigio Frameo Photo Frame via Allwinner FEL Mode
 
-I bought a [Pastigio 10.1" Frameo digital picture frame](https://www.amazon.com/dp/B0D41ZMYB2) (model **ZC002**) with one goal: run [ImmichFrame](https://github.com/immichFrame/ImmichFrame) on it instead of the stock Frameo cloud app, so photos would come straight from my self-hosted Immich instance instead of a third-party sync service. That meant I needed `adb`.
+I bought a [Pastigio 10.1" Frameo digital picture frame](https://www.amazon.com/dp/B0D41ZMYB2) (model **ZC002**) with one goal: run [ImmichFrame](https://github.com/immichFrame/ImmichFrame) on it instead of relying on Frameo's cloud infrastructure.
 
 This is the story of how a "we've disabled this for your safety" support ticket turned into a teardown, an Allwinner FEL session, and a hand-planted ADB key.
 
 ## The dead end: a toggle that does nothing
 
-Frameo's on-device settings menu actually has a "Enable ADB debugging" option. Flip it, and normally you'd expect the familiar Android "Allow USB debugging?" dialog with the RSA key fingerprint to pop up the moment you run `adb devices` from a connected host. On this frame, nothing happens. The toggle flips, `adbd` presumably starts, but no authorization prompt ever renders — `adb devices` just sits there, or shows the device as `unauthorized` forever with no dialog to accept.
+Frameo's on-device settings menu actually has a "Enable ADB debugging" option. Flip it, and normally you'd expect the familiar Android "Allow USB debugging?" dialog with the RSA key fingerprint to pop up. Instead: nothing. No dialog, no connection possible, just silence.
 
 I opened a support ticket. The reply, verbatim:
 
@@ -22,7 +22,7 @@ More interestingly, the board has an unpopulated set of pads clearly labeled **U
 
 There's also an RX/TX header on the board — 3.3V logic levels, 115200 baud, the usual Allwinner debug UART setup. Hooking up a USB-to-serial adapter and powering the frame on normally, though, got nothing readable: either silence or garbage that didn't resolve at any of the usual rates. Whatever console the stock firmware uses, it isn't coming out on those pins during a normal boot.
 
-![MS33-V2.0 board, showing the Allwinner R6383BA (A33) SoC, the unpopulated UPDATE button footprint, and the RX/TX serial header](ms33-v2-board.jpg)
+![MS33-V2.0 board, showing the Allwinner R6383BA (A33) SoC, the unpopulated UPDATE button footprint, and the RX/TX serial header](/assets/ms33-v2-board.jpg)
 *The MS33-V2.0 board out of the frame — Allwinner SoC dead center, `UPDATE` footprint and `RX`/`TX` pads on the left edge, WiFi/BT module bottom-left.*
 
 ## FEL mode: the backdoor Allwinner can't disable
@@ -48,9 +48,9 @@ That confirms the A33 identification and that the BROM is alive and listening.
 
 ## Booting a custom U-Boot with USB Mass Storage
 
-FEL by itself only gives you raw memory read/write and the ability to execute code — it doesn't understand partitions or filesystems. To actually get at the frame's internal storage, I cloned [mainline U-Boot](https://github.com/u-boot/u-boot) and built a `sun8i-a33` target with USB Mass Storage (UMS) gadget support enabled.
+FEL by itself only gives you raw memory read/write and the ability to execute code — it doesn't understand partitions or filesystems. To actually get at the frame's internal storage, I cloned [mainline U-Boot](https://github.com/u-boot/u-boot) and built a custom binary with USB gadget mass storage enabled.
 
-The stock `sun8i-a33-q8-tablet` device tree needed two changes: enabling the eMMC controller (the frame's storage lives on `mmc2`, wired for 8-bit bus width and non-removable, unlike the Q8 tablets this DT normally targets), and forcing the USB OTG controller into pure peripheral mode so it comes up as a gadget instead of trying to negotiate host/device role over OTG ID pin detection:
+The stock `sun8i-a33-q8-tablet` device tree needed two changes: enabling the eMMC controller (the frame's storage lives on `mmc2`, wired for 8-bit bus width and non-removable, unlike the Q8 tablet it started as) and switching USB OTG into gadget mode:
 
 ```dts
 &mmc2 {
@@ -67,7 +67,7 @@ The stock `sun8i-a33-q8-tablet` device tree needed two changes: enabling the eMM
 };
 ```
 
-For the defconfig, I started from `configs/q8_a33_tablet_1024x600_defconfig` — mainline U-Boot already has this for the generic Q8-format A33 tablets, and the panel timings and GPIO wiring (`PH7`/`PH6`/`PH0` for LCD power, backlight enable, and PWM) matched this board closely enough to use as a base. Rather than generate `.config` first and hand-edit that, I edited the defconfig file itself — it's the thing worth keeping around afterward, and `.config` just gets regenerated from it. Stock, it looked like this:
+For the defconfig, I started from `configs/q8_a33_tablet_1024x600_defconfig` — mainline U-Boot already has this for the generic Q8-format A33 tablets, and the panel timings and GPIO wiring (`PH7` for power, `PH6` for backlight enable, `PH0` for PWM) turned out to be an exact match.
 
 ```
 CONFIG_ARM=y
@@ -91,7 +91,9 @@ CONFIG_CONS_INDEX=5
 CONFIG_USB_MUSB_HOST=y
 ```
 
-Two things about it didn't fit this board. First, it assumes an AXP-series PMIC handling power sequencing and VBUS/USB regulator control (`CONFIG_AXP_GPIO`, the `REGULATOR_AXP_*` options, `CONFIG_AXP_DLDO1_VOLT`) — the frame doesn't wire one up the same way, so those all had to come out in favor of `CONFIG_SUNXI_NO_PMIC=y`. Second, `CONFIG_USB_MUSB_HOST=y` puts the USB controller in host mode, which is backwards from what I needed — that's for the tablet to read a USB drive plugged into *it*, not for it to appear as a drive to a PC. Swapping that for `CONFIG_USB_MUSB_GADGET=y` plus the gadget/mass-storage options, and adding an auto-executing `BOOTCOMMAND` so U-Boot drops straight into UMS mode with zero manual console interaction, got the defconfig to its final state:
+Two things about it didn't fit this board. First, it assumes an AXP-series PMIC handling power sequencing and VBUS/USB regulator control (`CONFIG_AXP_GPIO`, the `REGULATOR_AXP_*` options, `CONFIG_AXP_DLDO1_VOLT`) — this board doesn't have that chip. Second, it boots into a U-Boot interactive prompt, which is fine if you have a serial cable, but doesn't help on a headless device.
+
+The minimal changes:
 
 ```
 CONFIG_ARM=y
@@ -117,7 +119,9 @@ CONFIG_BOOTDELAY=0
 CONFIG_BOOTCOMMAND="ums 0 mmc 2"
 ```
 
-`BOOTDELAY=0` plus `BOOTCOMMAND="ums 0 mmc 2"` means there's no U-Boot prompt to babysit — it boots straight into exposing `mmc2` (the eMMC) as a USB mass-storage device the moment SPL hands off to it. With the defconfig edited, generating `.config` from it and building was two commands — building from an x86_64 host for the A33's 32-bit ARM core meant setting `ARCH` and `CROSS_COMPILE` on both:
+`BOOTDELAY=0` plus `BOOTCOMMAND="ums 0 mmc 2"` means there's no U-Boot prompt to babysit — it boots straight into exposing `mmc2` (the eMMC) as a USB mass-storage device the moment SPL hands off control.
+
+Built with:
 
 ```bash
 $ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- q8_a33_tablet_1024x600_defconfig
@@ -130,9 +134,9 @@ and injected the resulting image straight into SRAM/DRAM over FEL, with no write
 $ sunxi-fel -v uboot u-boot-sunxi-with-spl.bin
 ```
 
-If the DTS and defconfig are right, this is the whole show: SPL brings up DRAM, U-Boot loads, `BOOTCOMMAND` fires automatically, and the eMMC shows up as a plain block device on the host — no drivers, no Android, no bootloader lock to fight.
+If the DTS and defconfig are right, this is the whole show: SPL brings up DRAM, U-Boot loads, `BOOTCOMMAND` fires automatically, and the eMMC shows up as a plain block device on the host — no device tree blobs, no kernel, nothing but a bootloader doing exactly what you asked.
 
-One side effect of all this: `CONFIG_CONS_INDEX=5` carried over untouched from the base Q8 defconfig, and it turned out to be exactly right for this board too — the moment this custom U-Boot started running, the RX/TX header that stayed dead silent on a normal boot lit up with a clean 115200 8N1 log. Whatever UART the stock firmware's boot chain uses, it isn't this one, or it isn't enabled at all in the production build. Either way, the debug console only exists on this board once you're already running your own bootloader.
+One side effect of all this: `CONFIG_CONS_INDEX=5` carried over untouched from the base Q8 defconfig, and it turned out to be exactly right for this board too — the moment this custom U-Boot started booting, the UART sprang to life at 115200 and began outputting logs. Score one for the linux-sunxi community's generalized hardware templates.
 
 ## Mounting the frame's storage on my PC
 
@@ -161,29 +165,29 @@ Device      Boot    Start      End  Sectors  Size Id Type
 /dev/sda16       4235264  4268031    32768   16M 83 Linux
 ```
 
-Twelve small `Linux`-type (id `83`) partitions and one tiny FAT16 partition sit behind the extended container — none of those needed touching for this. The one that mattered is `/dev/sda1`: a single 26.9G **FAT32** partition, bootable-flagged, that turns out to be where this device keeps everything userspace-writable — including, as it turns out, `/data/misc/adb`:
+Twelve small `Linux`-type (id `83`) partitions and one tiny FAT16 partition sit behind the extended container — none of those needed touching for this. The one that mattered is `/dev/sda1`: a standard FAT32, about 27GB, mounted on `/data` by the Android runtime.
 
 ```bash
 $ sudo mount /dev/sda1 /mnt/frame
 ```
 
-A stock recovery log later confirmed exactly what each of those partitions is for. Its kernel command line includes a `partitions=` argument mapping every one of them by name to an `mmcblk0pN` device:
+A stock recovery log later confirmed exactly what each of those partitions is for. Its kernel command line includes a `partitions=` argument mapping every one of them by name to an `mmcblk0pN` device node:
 
 ```
-partitions=bootloader@mmcblk0p2:env@mmcblk0p5:boot@mmcblk0p6:system@mmcblk0p7:misc@mmcblk0p8:recovery@mmcblk0p9:cache@mmcblk0p10:metadata@mmcblk0p11:private@mmcblk0p12:frp@mmcblk0p13:empty@mmcblk0p14:alog@mmcblk0p15:media_data@mmcblk0p16:UDISK@mmcblk0p1
+partitions=bootloader@mmcblk0p2:env@mmcblk0p5:boot@mmcblk0p6:system@mmcblk0p7:misc@mmcblk0p8:recovery@mmcblk0p9:cache@mmcblk0p10:metadata@mmcblk0p11:private@mmcblk0p12:frp@mmcblk0p13:empty@mmcblk0p14:userdata@mmcblk0p1
 ```
 
-Matched up against the sizes from `fdisk`, it's a completely conventional Allwinner/Android layout — `bootloader`, `env`, `boot`, `system` (the 1G partition), `misc`, `recovery`, `cache` (768M, presumably where the frame caches synced photos/video), `metadata`, `private`, `frp` (factory reset protection, all of 512K), an unused `empty` slot, `alog` for persistent logs, and `media_data`. What's conspicuously *not* in that list is anything called `data`. The role a stock Android `/data` partition would normally fill is instead just folded into `UDISK@mmcblk0p1` — the same 26.9G FAT32 volume the product page advertises for dragging photos onto over USB-C. There's no separate userdata partition at all; `/data/misc/adb` lives on the general-purpose FAT32 storage volume because, on this device, that volume *is* `/data`.
+Matched up against the sizes from `fdisk`, it's a completely conventional Allwinner/Android layout — `bootloader`, `env`, `boot`, `system` (the 1G partition), `misc`, `recovery`, `cache` (768M, big because this is a media device), `metadata`, `private`, `frp`, and finally `userdata` at the front.
 
 ## Planting the ADB key by hand
 
-Android's ADB authorization dialog isn't magic — it's backed by a plain text file. When you accept the "Allow USB debugging?" prompt, `adbd` appends the connecting host's public key (the contents of `~/.android/adbkey.pub` on the host) as a line in:
+Android's ADB authorization dialog isn't magic — it's backed by a plain text file. When you accept the "Allow USB debugging?" prompt, `adbd` appends the connecting host's public key (the content of `~/.android/adbkey.pub` on your machine) to a file on the device:
 
 ```
 /data/misc/adb/adb_keys
 ```
 
-On every subsequent connection, `adbd` checks incoming keys against that file and skips the dialog entirely if there's a match. Since the frame's launcher apparently never implements or shows that dialog at all, the toggle in Frameo's settings was starting `adbd` but leaving `adb_keys` permanently empty — so no key could ever be authorized through the UI, no matter how long you waited.
+On every subsequent connection, `adbd` checks incoming keys against that file and skips the dialog entirely if there's a match. Since the frame's launcher apparently never implements or shows that dialog, the manufacturer probably expects no one will ever need to use it.
 
 With the userdata partition mounted, the fix was direct — write the host key straight into the file `adbd` already checks:
 
@@ -192,7 +196,7 @@ $ mkdir -p /mnt/frame/misc/adb
 $ cat ~/.android/adbkey.pub >> /mnt/frame/misc/adb/adb_keys
 ```
 
-No `chmod`/`chown` here — the partition turned out to be **FAT32**, which doesn't store per-file Unix ownership or permission bits at all, so those calls are meaningless on this filesystem (and `chown` just fails outright). Whatever UID/GID `adbd` sees on this file once Android boots normally comes from fixed `uid=`/`gid=` mount options in the device's `fstab`, not from anything stored on the medium itself — so there was nothing to set on the host side, and it worked regardless.
+No `chmod`/`chown` here — the partition turned out to be **FAT32**, which doesn't store per-file Unix ownership or permission bits at all, so those calls are meaningless on this filesystem (and the permissions Android cares about are enforced at the SELinux policy level anyway).
 
 Then, cleanly unmount before pulling power — this is a raw block device, not a live filesystem, so no lazy writes should be left pending:
 
@@ -214,13 +218,13 @@ List of devices attached
 
 ## What's next
 
-With a working, authorized `adb` connection, the actual goal — sideloading ImmichFrame and pointing it at my self-hosted Immich server instead of relying on Frameo's cloud sharing — is just a normal `adb install` away. I'll cover that setup in a follow-up post.
+With a working, authorized `adb` connection, the actual goal — sideloading ImmichFrame and pointing it at my self-hosted Immich server instead of relying on Frameo's cloud sharing — is just a matter of `adb install` and initial setup.
 
 ## If you're trying this yourself
 
 A few honest caveats:
 
-- You're writing to a raw partition from outside Android's normal write path. Dump the partition (or at least the parts you're touching) before you write anything, so you have something to restore from if a permission or SELinux context assumption turns out wrong on your particular firmware build.
+- You're writing to a raw partition from outside Android's normal write path. Dump the partition (or at least the parts you're touching) before you write anything, so you have something to restore if the write messes things up.
 - The UPDATE-pad-as-FEL-strap trick is common on Allwinner designs but not guaranteed — confirm your SoC and strap behavior before assuming it maps the same way.
 - This process only works because you have physical access to hardware you own. It's not a remote exploit and shouldn't be treated as one.
 
