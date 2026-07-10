@@ -7,7 +7,7 @@ tags: [embedded, u-boot, adb, frame, allwinner, fel]
 
 ## Overview
 
-This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a block device.
+This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a plain USB mass storage device on your host machine, allowing you to mount the Android filesystem and install ADB keys.
 
 ## What This U-Boot Does
 
@@ -16,67 +16,6 @@ When booted via FEL mode, this custom U-Boot:
 - Boots directly into USB mass storage mode (`ums 0 mmc 2`)
 - Exposes the frame's internal eMMC as a plain block device on the host
 - Requires **no serial cable, no fastboot, no manual interaction**
-
-## Building It
-
-The binary is built from mainline U-Boot, starting from the `q8_a33_tablet_1024x600_defconfig` and adapted for the Pastigio frame's hardware:
-
-### Device Tree Changes
-
-The stock Q8 tablet device tree needed updates to match the actual board:
-
-```dts
-&mmc2 {
-    pinctrl-names = "default";
-    pinctrl-0 = <&mmc2_8bit_pins>;
-    bus-width = <8>;
-    non-removable;
-    status = "okay";
-};
-
-&usb_otg {
-    dr_mode = "peripheral";
-    status = "okay";
-};
-```
-
-### U-Boot Defconfig
-
-```
-CONFIG_ARM=y
-CONFIG_ARCH_SUNXI=y
-CONFIG_DEFAULT_DEVICE_TREE="sun8i-a33-q8-tablet"
-CONFIG_DRAM_CLK=456
-CONFIG_SPL=y
-CONFIG_MACH_SUN8I_A33=y
-CONFIG_DRAM_ZQ=15291
-CONFIG_SUNXI_NO_PMIC=y
-CONFIG_VIDEO_LCD_MODE="x:1024,y:600,depth:18,pclk_khz:51000,le:159,ri:160,up:22,lo:12,hs:1,vs:1,sync:3,vmode:0"
-CONFIG_VIDEO_LCD_DCLK_PHASE=0
-CONFIG_VIDEO_LCD_POWER="PH7"
-CONFIG_VIDEO_LCD_BL_EN="PH6"
-CONFIG_VIDEO_LCD_BL_PWM="PH0"
-# CONFIG_SYS_MALLOC_CLEAR_ON_INIT is not set
-CONFIG_CONS_INDEX=5
-CONFIG_CMD_USB_MASS_STORAGE=y
-CONFIG_USB_GADGET=y
-CONFIG_USB_GADGET_DOWNLOAD=y
-CONFIG_USB_MUSB_GADGET=y
-CONFIG_BOOTDELAY=0
-CONFIG_BOOTCOMMAND="ums 0 mmc 2"
-```
-
-Key points:
-- `CONFIG_SUNXI_NO_PMIC=y` — no AXP PMIC on this board
-- `CONFIG_BOOTDELAY=0` and `CONFIG_BOOTCOMMAND="ums 0 mmc 2"` — boots straight into USB mass storage with zero delay
-- `CONFIG_CONS_INDEX=5` — serial output goes to the correct UART (inherited from Q8 config, happens to work for this board too)
-
-### Build Command
-
-```bash
-$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- q8_a33_tablet_1024x600_defconfig
-$ make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -j$(nproc)
-```
 
 ## How to Use It
 
@@ -87,34 +26,19 @@ See the [previous post]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mod
    ```bash
    $ sunxi-fel -v uboot u-boot-sunxi-with-spl.bin
    ```
-3. **The frame's eMMC appears on your host** as a USB mass storage device (e.g., `/dev/sdb`)
+3. **The frame's eMMC appears on your host** as a USB mass storage device
 
 ## Mounting the Userdata Partition and Adding ADB Keys
 
 Once the eMMC is exposed as USB mass storage, you can mount the Android userdata partition and plant your ADB public key:
 
-### Identify the Partition
-
-List the connected USB mass storage device:
-
-```bash
-$ lsblk
-NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
-sdb      8:16   1 29.1G  0 disk
-├─sdb1   8:17   1  256M  0 part
-├─sdb2   8:18   1  512M  0 part
-└─sdb3   8:19   1 28.3G  0 part
-```
-
-The userdata partition is typically the largest one (in this case, `sdb3`).
-
 ### Mount the Partition
 
-Create a mount point and mount the userdata partition:
+Based on the partition layout from the previous post, the userdata partition is typically `/dev/sda1`. Create a mount point and mount it:
 
 ```bash
 $ sudo mkdir -p /mnt/frame_userdata
-$ sudo mount /dev/sdb3 /mnt/frame_userdata
+$ sudo mount /dev/sda1 /mnt/frame_userdata
 ```
 
 ### Plant Your ADB Public Key
@@ -126,13 +50,11 @@ $ mkdir -p ~/.android
 $ adb keygen ~/.android/adbkey
 ```
 
-Navigate to the ADB keys directory and create the authorized keys file:
+Create the ADB keys directory and copy your public key:
 
 ```bash
 $ sudo mkdir -p /mnt/frame_userdata/misc/adb
 $ sudo cp ~/.android/adbkey.pub /mnt/frame_userdata/misc/adb/adb_keys
-$ sudo chown 1000:1000 /mnt/frame_userdata/misc/adb/adb_keys
-$ sudo chmod 0644 /mnt/frame_userdata/misc/adb/adb_keys
 ```
 
 ### Unmount and Reboot
@@ -157,11 +79,14 @@ List of attached devices
 
 No prompt or fingerprint prompt should appear.
 
-## Files
+## Binary Details
 
-- U-Boot source: mainline U-Boot with the defconfig and device tree changes above
-- Device tree: `arch/arm/dts/sun8i-a33-q8-tablet.dts` (modified)
-- Defconfig: `configs/q8_a33_tablet_1024x600_defconfig` (modified)
+This prebuilt U-Boot binary is based on mainline U-Boot configured for the Allwinner A33 with these key settings:
+
+- **Boot command**: `ums 0 mmc 2` — boots straight into USB mass storage mode with zero delay
+- **No PMIC**: Configured for boards without the AXP PMIC
+- **USB gadget**: Supports USB mass storage gadget mode for block device access
+- **Device tree**: Customized for the MS33-V2.0 board to properly initialize the eMMC and USB OTG controller
 
 ## Why This Works Without Fastboot or Serial
 
