@@ -11,6 +11,8 @@ tags: [embedded, u-boot, adb, frame, allwinner, fel]
 
 This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a USB mass storage device on your host machine, allowing you to mount the Android filesystem and install ADB keys.
 
+**Download the binary:** [`u-boot-sunxi-with-spl.bin`](/assets/u-boot-sunxi-with-spl.bin)
+
 ## What This U-Boot Does
 
 When booted via FEL mode, this custom U-Boot:
