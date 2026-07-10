@@ -1,11 +1,11 @@
 ---
 layout: post
-title: "Custom U-Boot for Allwinner A33 Frames via FEL Mode"
+title: "Adding ADB keys to the Pastigio Android Frame"
 date: 2026-07-10
 tags: [embedded, u-boot, adb, frame, allwinner, fel]
 ---
 
-# Adding ADB keys to the Allwinner A33 Frames
+# Adding ADB keys to the Pastigio Android Frame
 
 ## Overview
 
