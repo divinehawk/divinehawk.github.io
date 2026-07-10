@@ -7,7 +7,7 @@ tags: [embedded, u-boot, adb, frame, allwinner, fel]
 
 ## Overview
 
-This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a USB mass storage device, enabling ADB key injection without any manufacturer restrictions.
+This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a block device.
 
 ## What This U-Boot Does
 
@@ -87,10 +87,75 @@ See the [previous post]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mod
    ```bash
    $ sunxi-fel -v uboot u-boot-sunxi-with-spl.bin
    ```
-3. **The frame's eMMC appears on your host** as a USB mass storage device
-4. **Mount and edit** the `/data/misc/adb/adb_keys` file to plant your ADB public key
-5. **Power cycle normally** — no UPDATE pad shorting needed on reboot
-6. **`adb devices` shows the frame as authorized** with no prompt
+3. **The frame's eMMC appears on your host** as a USB mass storage device (e.g., `/dev/sdb`)
+
+## Mounting the Userdata Partition and Adding ADB Keys
+
+Once the eMMC is exposed as USB mass storage, you can mount the Android userdata partition and plant your ADB public key:
+
+### Identify the Partition
+
+List the connected USB mass storage device:
+
+```bash
+$ lsblk
+NAME   MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sdb      8:16   1 29.1G  0 disk
+├─sdb1   8:17   1  256M  0 part
+├─sdb2   8:18   1  512M  0 part
+└─sdb3   8:19   1 28.3G  0 part
+```
+
+The userdata partition is typically the largest one (in this case, `sdb3`).
+
+### Mount the Partition
+
+Create a mount point and mount the userdata partition:
+
+```bash
+$ sudo mkdir -p /mnt/frame_userdata
+$ sudo mount /dev/sdb3 /mnt/frame_userdata
+```
+
+### Plant Your ADB Public Key
+
+First, generate an ADB keypair if you don't have one:
+
+```bash
+$ mkdir -p ~/.android
+$ adb keygen ~/.android/adbkey
+```
+
+Navigate to the ADB keys directory and create the authorized keys file:
+
+```bash
+$ sudo mkdir -p /mnt/frame_userdata/misc/adb
+$ sudo cp ~/.android/adbkey.pub /mnt/frame_userdata/misc/adb/adb_keys
+$ sudo chown 1000:1000 /mnt/frame_userdata/misc/adb/adb_keys
+$ sudo chmod 0644 /mnt/frame_userdata/misc/adb/adb_keys
+```
+
+### Unmount and Reboot
+
+Safely unmount the partition:
+
+```bash
+$ sudo umount /mnt/frame_userdata
+```
+
+**Power cycle the frame normally** — no UPDATE pad shorting needed on reboot. The frame will boot Android and automatically trust your ADB public key.
+
+### Verify ADB Connection
+
+After the frame boots, verify that `adb devices` shows the frame as authorized:
+
+```bash
+$ adb devices
+List of attached devices
+<frame-serial>    device
+```
+
+No prompt or fingerprint prompt should appear.
 
 ## Files
 
@@ -106,9 +171,4 @@ See the [previous post]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mod
 
 ## Next Steps
 
-With the frame mounted as USB storage, you can:
-- Mount the userdata partition and edit any file
-- Plant the ADB key to enable debugging
-- Extract and replace the recovery or boot images
-- Follow the [ImmichFrame Frameo setup guide](https://immichframe.dev/docs/getting-started/apps#frameo) to sideload the app
-
+With ADB now enabled, you can follow the [ImmichFrame Frameo setup guide](https://immichframe.dev/docs/getting-started/apps#frameo) to sideload the app or continue with any other development workflows.
