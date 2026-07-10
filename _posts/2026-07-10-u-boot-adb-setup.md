@@ -1,13 +1,13 @@
 ---
 layout: post
-title: "Custom U-Boot for Allwinner A33 Frames via FEL Mode"
+title: "Building and Deploying Custom U-Boot for Allwinner A33 Frames"
 date: 2026-07-10
 tags: [embedded, u-boot, adb, frame, allwinner, fel]
 ---
 
 ## Overview
 
-This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a plain USB mass storage device on your host machine, allowing you to mount the Android filesystem and install ADB keys.
+This post documents the custom U-Boot binary used in the [previous FEL mode guide]({{ site.baseurl }}/2026-07-08-pastigio-frame-adb-fel-mode.html) — the bootloader that exposes the frame's eMMC as a USB mass storage device.
 
 ## What This U-Boot Does
 
